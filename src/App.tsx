@@ -1,52 +1,45 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
 import "./App.css";
 
-import { useUnit } from "effector-react";
-import { counterFactory } from "./model";
 import { invoke } from "@withease/factories";
+import { useUnit } from "effector-react";
+import type { FunctionComponent } from "react";
+import { CounterFactory, type CounterModel } from "./model";
+import { combine } from "effector";
 
-const counterOne = invoke(counterFactory);
-const counterTwo = invoke(counterFactory);
+const counterOne = invoke(CounterFactory, {});
+const counterTwo = invoke(CounterFactory, { initialValue: 10 });
 
-function Counter({ counter }: { counter: ReturnType<typeof counterFactory> }) {
-  const { $counter, increment } = useUnit(counter);
+const $counterTotal = combine(
+  counterOne.$counter,
+  counterTwo.$counter,
+  (a, b) => a + b
+);
+
+const Counter: FunctionComponent<{ counter: CounterModel }> = ({ counter }) => {
+  const { $counter, increment, decrement } = useUnit(counter);
 
   return (
     <div className="card">
-      <button onClick={() => increment()}>Counter value is {$counter}</button>
+      <button onClick={() => decrement(5)}>-5</button>
+      <button onClick={() => decrement(1)}>-</button>
+      <span>Counter value is {$counter}</span>
+      <button onClick={() => increment(1)}>+</button>
+      <button onClick={() => increment(5)}>+5</button>
     </div>
   );
-}
+};
+
+const Total: FunctionComponent = () => {
+  const total = useUnit($counterTotal);
+  return <div>Total: {total} </div>;
+};
 
 function App() {
-  const [count, setCount] = useState(0);
-
   return (
     <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
       <Counter counter={counterOne} />
       <Counter counter={counterTwo} />
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <Total />
     </>
   );
 }

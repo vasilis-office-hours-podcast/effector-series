@@ -1,30 +1,41 @@
 import { createStore, createEvent, sample } from "effector";
 import { createFactory } from "@withease/factories";
 
-export const counterFactory = createFactory(() => {
-  const $counter = createStore(0);
+export type CounterSettings = {
+  initialValue?: number;
+};
 
-  $counter.watch((current) =>
-    console.log(`Current value of $counter is ${current}.`)
-  );
+export const CounterFactory = createFactory(
+  ({ initialValue = 0 }: CounterSettings) => {
+    const $counter = createStore(initialValue);
 
-  const increment = createEvent();
+    const increment = createEvent<number>();
+    const decrement = createEvent<number>();
 
-  increment.watch(() => console.log(`Increment was triggered`));
+    sample({
+      clock: increment,
+      source: $counter,
+      fn(current, increase) {
+        return current + increase;
+      },
+      target: $counter,
+    });
 
-  // $counter.on(increment, (current) => current + 1);
+    sample({
+      clock: decrement,
+      source: $counter,
+      fn(current, decrease) {
+        return current - decrease;
+      },
+      target: $counter,
+    });
 
-  sample({
-    clock: increment,
-    source: $counter,
-    fn(current) {
-      return current + 1;
-    },
-    target: $counter,
-  });
+    return {
+      $counter,
+      increment,
+      decrement,
+    };
+  }
+);
 
-  return {
-    $counter,
-    increment,
-  };
-});
+export type CounterModel = ReturnType<typeof CounterFactory>;
