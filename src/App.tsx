@@ -2,9 +2,8 @@ import "./App.css";
 
 import { invoke } from "@withease/factories";
 import { createEvent, sample } from "effector";
-import { useUnit } from "effector-react";
 import { Counter, CounterFactory } from "./features/counter";
-import { TimerFactory } from "./features/timers";
+import { Timer, TimerFactory } from "./features/timers";
 
 const counterOne = invoke(CounterFactory, { initialValue: 1 });
 const counterTwo = invoke(CounterFactory, { initialValue: 10 });
@@ -15,25 +14,19 @@ const timer = invoke(TimerFactory, {
   tick,
 });
 
+const incrementCounterTwoBy1 = counterTwo.increment.prepend(() => 1);
+
 sample({
   clock: tick,
-  fn: () => 1,
-  target: counterTwo.increment,
+  target: incrementCounterTwoBy1,
 });
 
 function App() {
-  const { setup, teardown, $isRunning: isRunning } = useUnit(timer);
   return (
     <>
       <Counter counter={counterOne} />
       <Counter counter={counterTwo} />
-      <button onClick={() => setup()} disabled={isRunning}>
-        Start
-      </button>
-      &nbsp;
-      <button onClick={() => teardown()} disabled={!isRunning}>
-        Stop
-      </button>
+      <Timer timer={timer} />
     </>
   );
 }
