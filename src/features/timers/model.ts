@@ -5,8 +5,10 @@ import {
   createStore,
   EventCallable,
   sample,
+  scopeBind,
   type Store,
 } from "effector";
+import { debug } from "patronum";
 import { testingInternals } from "../../shared/testing";
 
 export type TimerFactorySettings = {
@@ -25,7 +27,10 @@ export const TimerFactory = createFactory(
     });
 
     const setupIntervalFx = createEffect((timeout: number) => {
-      return setInterval(() => tick(), timeout);
+      const boundTick = scopeBind(tick, { safe: true });
+      return setInterval(() => {
+        boundTick();
+      }, timeout);
     });
 
     const teardownIntervalFx = createEffect(clearInterval);
@@ -50,6 +55,8 @@ export const TimerFactory = createFactory(
       clock: setupIntervalFx.doneData,
       target: $intervalId,
     });
+
+    debug(setupIntervalFx.failData);
 
     sample({
       clock: setup,

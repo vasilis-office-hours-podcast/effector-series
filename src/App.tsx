@@ -23,6 +23,7 @@ sample({
 });
 
 debug({ trace: true }, tick);
+debug({ trace: true }, timer);
 
 function App() {
   return (
