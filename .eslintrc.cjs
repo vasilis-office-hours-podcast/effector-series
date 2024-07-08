@@ -1,3 +1,6 @@
+/**
+ * @type {import('eslint').Linter.Config}
+ **/
 module.exports = {
   root: true,
   env: { browser: true, es2020: true },
@@ -17,4 +20,12 @@ module.exports = {
       { allowConstantExport: true },
     ],
   },
+  overrides: [
+    {
+      files: ["**/*.test.ts"],
+      rules: {
+        "effector/no-getState": "off",
+      },
+    },
+  ],
 };

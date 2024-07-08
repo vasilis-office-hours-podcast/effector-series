@@ -1,45 +1,39 @@
 import "./App.css";
 
 import { invoke } from "@withease/factories";
+import { createEvent, sample } from "effector";
 import { useUnit } from "effector-react";
-import type { FunctionComponent } from "react";
-import { CounterFactory, type CounterModel } from "./model";
-import { combine } from "effector";
+import { Counter, CounterFactory } from "./features/counter";
+import { TimerFactory } from "./features/timers";
 
-const counterOne = invoke(CounterFactory, {});
+const counterOne = invoke(CounterFactory, { initialValue: 1 });
 const counterTwo = invoke(CounterFactory, { initialValue: 10 });
 
-const $counterTotal = combine(
-  counterOne.$counter,
-  counterTwo.$counter,
-  (a, b) => a + b
-);
+const tick = createEvent();
+const timer = invoke(TimerFactory, {
+  timeout: counterOne.$counter.map((x) => x * 1000),
+  tick,
+});
 
-const Counter: FunctionComponent<{ counter: CounterModel }> = ({ counter }) => {
-  const { $counter, increment, decrement } = useUnit(counter);
-
-  return (
-    <div className="card">
-      <button onClick={() => decrement(5)}>-5</button>
-      <button onClick={() => decrement(1)}>-</button>
-      <span>Counter value is {$counter}</span>
-      <button onClick={() => increment(1)}>+</button>
-      <button onClick={() => increment(5)}>+5</button>
-    </div>
-  );
-};
-
-const Total: FunctionComponent = () => {
-  const total = useUnit($counterTotal);
-  return <div>Total: {total} </div>;
-};
+sample({
+  clock: tick,
+  fn: () => 1,
+  target: counterTwo.increment,
+});
 
 function App() {
+  const { setup, teardown, $isRunning: isRunning } = useUnit(timer);
   return (
     <>
       <Counter counter={counterOne} />
       <Counter counter={counterTwo} />
-      <Total />
+      <button onClick={() => setup()} disabled={isRunning}>
+        Start
+      </button>
+      &nbsp;
+      <button onClick={() => teardown()} disabled={!isRunning}>
+        Stop
+      </button>
     </>
   );
 }
