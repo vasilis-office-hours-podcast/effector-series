@@ -20,12 +20,4 @@ module.exports = {
       { allowConstantExport: true },
     ],
   },
-  overrides: [
-    {
-      files: ["**/*.test.ts"],
-      rules: {
-        "effector/no-getState": "off",
-      },
-    },
-  ],
 };

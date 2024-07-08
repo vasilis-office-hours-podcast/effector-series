@@ -10,9 +10,12 @@ describe("Initialization tests", () => {
     const $timeout = createStore(1);
     const tick = createEvent();
     const subject = invoke(TimerFactory, { timeout: $timeout, tick });
+    const scope = fork();
 
-    expect(subject.$isRunning.getState()).toBe(false);
-    expect(subject[testingInternals].$intervalId.getState()).toBeUndefined();
+    expect(scope.getState(subject.$isRunning)).toBe(false);
+    expect(
+      scope.getState(subject[testingInternals].$intervalId)
+    ).toBeUndefined();
   });
 });
 
@@ -37,7 +40,9 @@ describe("Running Test", () => {
 
     expect(target).toHaveBeenCalledTimes(0);
     expect(scope.getState(subject.$isRunning)).toBeFalsy();
-    expect(scope.getState(subject[testingInternals].$intervalId)).toBeUndefined();
+    expect(
+      scope.getState(subject[testingInternals].$intervalId)
+    ).toBeUndefined();
 
     await allSettled(subject.setup, { scope });
 
@@ -49,7 +54,9 @@ describe("Running Test", () => {
     expect(target).toHaveBeenCalledTimes(2);
 
     await allSettled(subject.teardown, { scope });
-    expect(scope.getState(subject[testingInternals].$intervalId)).toBeUndefined();
+    expect(
+      scope.getState(subject[testingInternals].$intervalId)
+    ).toBeUndefined();
     expect(scope.getState(subject.$isRunning)).toBeFalsy();
 
     vi.advanceTimersByTime(2);
