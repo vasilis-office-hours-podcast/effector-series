@@ -2,6 +2,7 @@ import "./App.css";
 
 import { invoke } from "@withease/factories";
 import { createEvent, sample } from "effector";
+import { debug } from "patronum";
 import { Counter, CounterFactory } from "./features/counter";
 import { Timer, TimerFactory } from "./features/timers";
 
@@ -20,6 +21,8 @@ sample({
   clock: tick,
   target: incrementCounterTwoBy1,
 });
+
+debug({ trace: true }, tick);
 
 function App() {
   return (
