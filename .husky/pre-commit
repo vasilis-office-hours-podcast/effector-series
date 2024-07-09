@@ -1,3 +1,2 @@
 prettier --check .
-npm test -- run
-eslint .
+lint-staged
